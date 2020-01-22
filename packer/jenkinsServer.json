@@ -1,0 +1,28 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": "",
+        "region": ""
+    },
+    "builders": [{
+        "type": "amazon-ebs",
+        "access_key": "{{user `aws_access_key`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "region": "{{user `region`}}",
+        "source_ami": "ami-00379ec40a3e30f87",
+        "instance_type": "t2.micro",
+        "ssh_username": "ubuntu",
+        "ami_name": "landingProject-JenkinsServer"
+    }],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "init.sh",
+            "destination": "init.sh"
+        }, 
+        {
+            "type": "shell",
+            "inline": ["sh init.sh"]
+        }
+    ]
+}
