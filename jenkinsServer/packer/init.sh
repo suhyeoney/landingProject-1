@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo apt update -y
 sudo apt install default-jdk-headless -y
 wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
