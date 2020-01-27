@@ -10,3 +10,4 @@ sudo wget https://releases.hashicorp.com/terraform/0.12.19/terraform_0.12.19_lin
 mkdir /home/ubuntu/localBin
 sudo unzip ./terraform_0.12.19_linux_amd64.zip -d /home/ubuntu/localBin/
 echo "export PATH=$PATH:/home/ubuntu/localBin/" >> .profile
+mkdir .aws
