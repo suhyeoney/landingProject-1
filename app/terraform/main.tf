@@ -88,7 +88,7 @@ resource "aws_route_table_association" "private_association_db" {
 
 // ********************************************************
 
-// AWS Secuity groups: elb for HTTP inbound, default for HTTP && SSH inbound
+// AWS Secuity groups: elb for HTTP inbound, default for HTTP && SSH inbound, private for SSH inbound from public subnet(bastion)
 
 resource "aws_security_group" "elb" {
     name        = "app_lb_security_group"
@@ -127,6 +127,33 @@ resource "aws_security_group" "default" {
         to_port     = 80
         protocol    = "tcp"
         cidr_blocks = ["10.0.0.0/16"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "private" {
+    name        = "security group for private instances"
+    description = "security group for private instances which can be only handled by bastion instance"
+    vpc_id      = "${aws_vpc.default.id}"
+
+    ingress {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["${aws_subnet.public_subnet.cidr_block}"]
+    }
+
+    egress {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["${aws_subnet.private_subnet_web.cidr_block}", "${aws_subnet.private_subnet_was.cidr_block}"]
     }
 
     egress {
@@ -179,21 +206,24 @@ resource "aws_elb" "app" {
 
 // Need to generate a bastion instance as well
 
-resource "aws_instance" "web" {
-    connection {
-        user    = "ubuntu"
-        host    = "${self.publilc_ip}"
-    }
-
+resource "aws_instance" "bastion" {
     instance_type           = "t2.micro"
-    ami                     = "${var.image_id}"
+    ami                     = "${lookup()}"
     key_name                = "${var.key_name}"
 
-    vpc_security_group_ids  = ["${aws_security_group.default}"]
-    subnet_id               = "${aws_subnet.private_subnet_app.id}"
+    vpc_security_group_ids  = ["${aws_security_group.default.id}"]
+    subnet_id               = "${aws_subnet.public_subnet.id}"
+}
+
+resource "aws_instance" "web" {
+    instance_type           = "t2.micro"
+    ami                     = "${var.image_id_web}"
+    key_name                = "${var.key_name}"
+
+    vpc_security_group_ids  = ["${aws_security_group.private}"]
+    subnet_id               = "${aws_subnet.private_subnet_web.id}"
 
     provisioner "local-exec" {
-        # dependencies and so on to add here
         command =<<EOT
         sudo apt update
         sudo apt install git -y
@@ -202,8 +232,16 @@ resource "aws_instance" "web" {
 }
 
 resource "aws_instance" "app" {
-    connection {
-        user    = "ubuntu"
+    instance_type           = "t2.micro"
+    ami                     = "${var.image_id_app}"
+    key_name                = "${var.key_name}"
+
+    vpc_security_group_ids  = ["${aws_security_group.private}"]
+    subnet_id               = "${aws_subnet.private_subnet_app.id}"
+
+    provisioner "local-exec" {
+        command =<<EOT
+        EOT
     }
 }
 
