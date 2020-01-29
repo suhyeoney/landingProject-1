@@ -16,6 +16,6 @@
 
 * App Infra 구축
     * Packer
-	* To be added
+        * To be added
     * Terraform
-	* terraform.tfvars.json 내의 Parameter를 개인에 맞게 수정 후, $ terraform init, terraform apply
+        * terraform.tfvars.json 내의 Parameter를 개인에 맞게 수정 후, $ terraform init, terraform apply
