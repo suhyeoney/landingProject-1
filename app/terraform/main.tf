@@ -208,7 +208,7 @@ resource "aws_elb" "app" {
 
 resource "aws_instance" "bastion" {
     instance_type           = "t2.micro"
-    ami                     = "${lookup()}"
+    ami                     = "" # Ubuntu 18.04 LTS in ap-northeast-2
     key_name                = "${var.key_name}"
 
     vpc_security_group_ids  = ["${aws_security_group.default.id}"]
@@ -248,5 +248,10 @@ resource "aws_instance" "app" {
 resource "aws_db_instance" "default" {
     allocated_storage   = 10
     storage_type        = "gp"
+    engine              = "mysql"
+    instance_class      = "db.t2.micro"
+    password            = "${var.db_password}"
+    port                = "${var.db_port}"
+    username            = "${var.db_username}"
 }
 
