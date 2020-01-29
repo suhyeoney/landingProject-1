@@ -1,3 +1,9 @@
+variable "my_region" {
+    type    = string
+    default = "ap-northeast-2"
+}
+
+
 variable "image_id_app" {
     type = string
 }
